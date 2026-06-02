@@ -1,0 +1,57 @@
+{
+  "skill_name": "setup-model-selector",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我在一台新的 Linux 服务器上，想给当前项目配置 model-selector，用阿里通义的 qwen3.7-max 做主模型，qwen3.6-flash 做子模型，API 地址是 https://dashscope.aliyuncs.com/apps/anthropic，effort 设为 max。另外再加一个 DeepSeek 的 deepseek-v4-pro 做主模型，deepseek-v4-flash 做子模型。不需要 apiKeyHelper，用 OAuth 就行。",
+      "expected_output": "Should create .claude/model-selector with 2 providers, write claude() function to ~/.bashrc, skip apiKeyHelper and secrets.sh setup, validate JSON, and remind about gitignore",
+      "files": [],
+      "assertions": [
+        {"name": "model-selector-json-valid", "description": "The .claude/model-selector file exists and is valid JSON"},
+        {"name": "model-selector-has-2-providers", "description": "The model-selector JSON contains exactly 2 provider entries"},
+        {"name": "qwen-model-correct", "description": "Qwen entry has model='qwen3.7-max', fast='qwen3.6-flash', base_url correct"},
+        {"name": "deepseek-model-correct", "description": "DeepSeek entry has model='deepseek-v4-pro', fast='deepseek-v4-flash', base_url correct"},
+        {"name": "effort-set-to-max", "description": "The effort field is set to 'max' for providers"},
+        {"name": "bashrc-function-exists", "description": "The bashrc file contains a claude() function definition"},
+        {"name": "bashrc-uses-bash-read-syntax", "description": "The function uses bash read syntax, not zsh syntax"},
+        {"name": "no-apikeyhelper-configured", "description": "No apiKeyHelper is configured (user declined)"},
+        {"name": "no-secrets-sh-created", "description": "No secrets.sh file is created (user chose OAuth)"},
+        {"name": "env-mapping-complete", "description": "The shell function exports all 8 required environment variables"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm on macOS and I want to set up model-selector for my project. I want to use a custom API provider at https://my-internal-api.company.com/v1/anthropic with model 'internal-gpt4o' and no separate fast model. Also add the standard Qwen provider. I DO want apiKeyHelper enabled with secrets.sh for token management. Set effort to high for the custom provider and leave it default for Qwen.",
+      "expected_output": "Should detect zsh, create .claude/model-selector with 2 providers, write zsh-compatible claude() to ~/.zshrc, create ~/.claude/secrets.sh with 600 permissions, add apiKeyHelper to settings.json, validate everything",
+      "files": [],
+      "assertions": [
+        {"name": "model-selector-json-valid", "description": "The .claude/model-selector file exists and is valid JSON"},
+        {"name": "model-selector-has-2-providers", "description": "The model-selector JSON contains exactly 2 provider entries"},
+        {"name": "custom-provider-no-fast-field", "description": "Custom provider entry has no 'fast' field"},
+        {"name": "custom-provider-effort-high", "description": "Custom provider has effort='high'"},
+        {"name": "qwen-provider-no-effort", "description": "Qwen provider has no effort field"},
+        {"name": "zshrc-function-exists", "description": "The .zshrc file contains a claude() function definition"},
+        {"name": "zshrc-uses-zsh-read-syntax", "description": "The function uses zsh read syntax"},
+        {"name": "apikeyhelper-configured", "description": "settings.json contains apiKeyHelper field"},
+        {"name": "secrets-sh-created", "description": "secrets.sh file is created with placeholder tokens"},
+        {"name": "secrets-sh-has-placeholders", "description": "secrets.sh contains placeholder tokens for providers"},
+        {"name": "security-reminders-given", "description": "Output mentions 600 permissions and never-commit warning"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "我的项目已经有 model-selector 了，但是我想重新配置，只保留一个 glm-5.1 的模型，用智谱的 API，base url 是 https://open.bigmodel.cn/api/paas/v4/anthropic，主模型 glm-5.1，快速模型 glm-4.7-flash。之前的 bashrc 里已经有 claude() 函数了，帮我替换掉。",
+      "expected_output": "Should detect existing claude() function in bashrc, ask user before replacing, overwrite .claude/model-selector with single GLM entry, replace the old function, and verify the setup",
+      "files": [],
+      "assertions": [
+        {"name": "model-selector-overwritten", "description": "The .claude/model-selector is replaced with only 1 provider entry"},
+        {"name": "glm-model-correct", "description": "GLM entry has correct model, fast, and base_url"},
+        {"name": "bashrc-function-replaced", "description": "The bashrc has exactly one claude() function (not duplicated)"},
+        {"name": "bashrc-other-content-preserved", "description": "Other bashrc content is preserved"},
+        {"name": "detected-existing-function", "description": "Transcript shows existing function was detected"},
+        {"name": "json-valid", "description": "The model-selector JSON is valid"},
+        {"name": "env-mapping-complete", "description": "The shell function exports all required environment variables"}
+      ]
+    }
+  ]
+}

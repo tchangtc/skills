@@ -8,6 +8,12 @@ Collection of Claude Code custom skills.
 skills/
 ├── demo-skill/
 │   └── hello.md        # Simple greeting demo skill
+├── setup-model-selector/
+│   ├── SKILL.md         # Multi-provider model-selector setup guide
+│   ├── references/
+│   │   └── shell-function.md  # bash/zsh shell function templates
+│   └── evals/
+│       └── evals.json   # Test cases and assertions
 └── README.md
 ```
 
@@ -30,3 +36,4 @@ Instructions for the AI to follow...
 | Skill | Description |
 |-------|-------------|
 | [hello](demo-skill/hello.md) | Greets the user and displays system information |
+| [setup-model-selector](setup-model-selector/SKILL.md) | Set up Claude Code multi-provider model-selector system (DeepSeek, Qwen, GLM, custom APIs) |
