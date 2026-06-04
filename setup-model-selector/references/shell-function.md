@@ -15,7 +15,18 @@ claude() {
   local py
   py=$(command -v python3 2>/dev/null || command -v python 2>/dev/null)
 
+  # Always clear any residual ANTHROPIC_AUTH_TOKEN from a previous session first.
+  # This prevents auth conflicts with apiKeyHelper / OAuth.
+  # Custom mode (below) can then set a fresh one that survives.
+  unset ANTHROPIC_AUTH_TOKEN
+
   if [[ -f ".claude/model-selector" ]]; then
+    # Guard: bail out early when no Python interpreter is available
+    if [[ -z "$py" ]]; then
+      echo "error: Python3 not found, cannot parse .claude/model-selector" >&2
+      return 1
+    fi
+
     local result
     result=$("$py" << 'PYEOF'
 import json, shlex, sys
@@ -77,6 +88,7 @@ PYEOF
         read -p "Model name: " custom
         read -p "Base URL: " url
         read -p "API Key (optional): " key
+        export CLAUDE_PROVIDER="custom"
         export ANTHROPIC_MODEL="$custom"
         export ANTHROPIC_DEFAULT_OPUS_MODEL="$custom"
         export ANTHROPIC_DEFAULT_SONNET_MODEL="$custom"
@@ -85,6 +97,7 @@ PYEOF
         export CLAUDE_CODE_SUBAGENT_MODEL="$custom"
         export ANTHROPIC_BASE_URL="$url"
         [[ -n "$key" ]] && export ANTHROPIC_AUTH_TOKEN="$key"
+        unset CLAUDE_CODE_EFFORT_LEVEL
         echo "=> $custom @ $url"
         ;;
       __ERROR__)
@@ -94,9 +107,18 @@ PYEOF
         eval "$result"
         ;;
     esac
-
-    # Force apiKeyHelper to be used instead of any pre-existing ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_AUTH_TOKEN
+  else
+    # No model-selector in this project — unset all model env vars
+    # so Claude Code falls back to its built-in Anthropic defaults + OAuth.
+    unset CLAUDE_PROVIDER
+    unset ANTHROPIC_BASE_URL
+    unset ANTHROPIC_MODEL
+    unset ANTHROPIC_DEFAULT_OPUS_MODEL
+    unset ANTHROPIC_DEFAULT_SONNET_MODEL
+    unset ANTHROPIC_DEFAULT_HAIKU_MODEL
+    unset ANTHROPIC_SMALL_FAST_MODEL
+    unset CLAUDE_CODE_SUBAGENT_MODEL
+    unset CLAUDE_CODE_EFFORT_LEVEL
   fi
 
   command claude "$@"
@@ -115,7 +137,18 @@ claude() {
   local py
   py=$(command -v python3 2>/dev/null || command -v python 2>/dev/null)
 
+  # Always clear any residual ANTHROPIC_AUTH_TOKEN from a previous session first.
+  # This prevents auth conflicts with apiKeyHelper / OAuth.
+  # Custom mode (below) can then set a fresh one that survives.
+  unset ANTHROPIC_AUTH_TOKEN
+
   if [[ -f ".claude/model-selector" ]]; then
+    # Guard: bail out early when no Python interpreter is available
+    if [[ -z "$py" ]]; then
+      echo "错误: 未找到 Python3，无法解析 .claude/model-selector" >&2
+      return 1
+    fi
+
     local result
     result=$("$py" << 'PYEOF'
 import json, shlex, sys
@@ -124,7 +157,7 @@ try:
     with open('.claude/model-selector') as f:
         models = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError) as e:
-    print(f"error: model-selector invalid — {e}", file=sys.stderr)
+    print(f"错误: model-selector 格式无效 — {e}", file=sys.stderr)
     print("__ERROR__")
     sys.exit(0)
 
@@ -177,6 +210,7 @@ PYEOF
         read "custom?模型名称: "
         read "url?Base URL: "
         read "key?API Key (可选): "
+        export CLAUDE_PROVIDER="custom"
         export ANTHROPIC_MODEL="$custom"
         export ANTHROPIC_DEFAULT_OPUS_MODEL="$custom"
         export ANTHROPIC_DEFAULT_SONNET_MODEL="$custom"
@@ -185,6 +219,7 @@ PYEOF
         export CLAUDE_CODE_SUBAGENT_MODEL="$custom"
         export ANTHROPIC_BASE_URL="$url"
         [[ -n "$key" ]] && export ANTHROPIC_AUTH_TOKEN="$key"
+        unset CLAUDE_CODE_EFFORT_LEVEL
         echo "=> $custom @ $url"
         ;;
       __ERROR__)
@@ -194,8 +229,18 @@ PYEOF
         eval "$result"
         ;;
     esac
-
-    unset ANTHROPIC_AUTH_TOKEN
+  else
+    # 无 model-selector 的项目 — 清除所有模型环境变量，
+    # 回退到 Claude Code 官方默认配置 (Anthropic API + OAuth)。
+    unset CLAUDE_PROVIDER
+    unset ANTHROPIC_BASE_URL
+    unset ANTHROPIC_MODEL
+    unset ANTHROPIC_DEFAULT_OPUS_MODEL
+    unset ANTHROPIC_DEFAULT_SONNET_MODEL
+    unset ANTHROPIC_DEFAULT_HAIKU_MODEL
+    unset ANTHROPIC_SMALL_FAST_MODEL
+    unset CLAUDE_CODE_SUBAGENT_MODEL
+    unset CLAUDE_CODE_EFFORT_LEVEL
   fi
 
   command claude "$@"
@@ -210,8 +255,36 @@ PYEOF
 |--------|------|-----|
 | Config file | `~/.bashrc` | `~/.zshrc` |
 | `read` syntax | `read -p "prompt: " var` | `read "var?prompt: "` |
-| Menu language | English | Chinese (matching the report's zsh convention) |
+| Menu language | English | Chinese |
 | Everything else | Identical | Identical |
+
+---
+
+## Critical Design Decisions
+
+### Why `unset ANTHROPIC_AUTH_TOKEN` is at the TOP of the function
+
+Placing it at the end (after `case`) would clear the token **custom mode just set**.
+Placing it inside the `if` block only would leak stale tokens when model-selector is absent.
+
+**Correct placement**: at function entry — clears old state before any new state is built.
+
+### Why there's an `else` branch
+
+Without an `else` branch, model-related env vars from a previous model-selector
+session would persist into projects **without** model-selector. The `else` branch
+actively unsets all of them so Claude Code falls back to its built-in Anthropic
+API defaults.
+
+### Why custom mode sets `CLAUDE_PROVIDER` and unsets `EFFORT_LEVEL`
+
+- `CLAUDE_PROVIDER="custom"` prevents `apiKeyHelper` from returning a wrong token.
+- `unset CLAUDE_CODE_EFFORT_LEVEL` prevents a stale effort level from a previous selection.
+
+### Why there's a Python guard
+
+When `python3` and `python` are both absent, `$py` is empty and the heredoc
+would fail silently. The explicit `[[ -z "$py" ]]` check gives a clear error.
 
 ## Environment Variable Mapping
 

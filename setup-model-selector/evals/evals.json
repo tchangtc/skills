@@ -16,7 +16,12 @@
         {"name": "bashrc-uses-bash-read-syntax", "description": "The function uses bash read syntax, not zsh syntax"},
         {"name": "no-apikeyhelper-configured", "description": "No apiKeyHelper is configured (user declined)"},
         {"name": "no-secrets-sh-created", "description": "No secrets.sh file is created (user chose OAuth)"},
-        {"name": "env-mapping-complete", "description": "The shell function exports all 8 required environment variables"}
+        {"name": "env-mapping-complete", "description": "The shell function exports all 8 required environment variables"},
+        {"name": "unset-auth-token-at-top", "description": "unset ANTHROPIC_AUTH_TOKEN is placed at function top, before the if block"},
+        {"name": "python-guard-exists", "description": "Shell function has a guard for missing Python interpreter"},
+        {"name": "else-branch-exists", "description": "Shell function has an else branch that unsets model vars for no-model-selector case"},
+        {"name": "mentions-prerequisites", "description": "Output checks for Node.js, npm, Python3 before starting setup"},
+        {"name": "api-key-registration-links", "description": "Output includes registration/console links for DeepSeek, DashScope, Zhipu"}
       ]
     },
     {
@@ -32,10 +37,14 @@
         {"name": "qwen-provider-no-effort", "description": "Qwen provider has no effort field"},
         {"name": "zshrc-function-exists", "description": "The .zshrc file contains a claude() function definition"},
         {"name": "zshrc-uses-zsh-read-syntax", "description": "The function uses zsh read syntax"},
-        {"name": "apikeyhelper-configured", "description": "settings.json contains apiKeyHelper field"},
+        {"name": "custom-mode-sets-provider-and-effort", "description": "Custom mode exports CLAUDE_PROVIDER=custom and unsets CLAUDE_CODE_EFFORT_LEVEL"},
+        {"name": "unset-auth-token-at-top", "description": "unset ANTHROPIC_AUTH_TOKEN is placed at function top, before the if block"},
+        {"name": "apikeyhelper-configured", "description": "settings.json contains apiKeyHelper field with proper case syntax"},
         {"name": "secrets-sh-created", "description": "secrets.sh file is created with placeholder tokens"},
         {"name": "secrets-sh-has-placeholders", "description": "secrets.sh contains placeholder tokens for providers"},
-        {"name": "security-reminders-given", "description": "Output mentions 600 permissions and never-commit warning"}
+        {"name": "security-reminders-given", "description": "Output mentions 600 permissions and never-commit warning"},
+        {"name": "mentions-npm-mirror", "description": "Output mentions npm registry mirror for users in China"},
+        {"name": "macos-platform-note", "description": "Output explains macOS-specific setup (zsh, .zshrc)"}
       ]
     },
     {
@@ -50,7 +59,29 @@
         {"name": "bashrc-other-content-preserved", "description": "Other bashrc content is preserved"},
         {"name": "detected-existing-function", "description": "Transcript shows existing function was detected"},
         {"name": "json-valid", "description": "The model-selector JSON is valid"},
-        {"name": "env-mapping-complete", "description": "The shell function exports all required environment variables"}
+        {"name": "env-mapping-complete", "description": "The shell function exports all required environment variables"},
+        {"name": "else-branch-unsets-model-vars", "description": "The else branch unsets all 9 model vars for Anthropic fallback"},
+        {"name": "unset-auth-token-at-top", "description": "unset ANTHROPIC_AUTH_TOKEN is placed at function top, before the if block"}
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "我是 Windows 用户，第一次用 Claude Code，想配置 model-selector 用国内的 DeepSeek 和 Qwen 模型。我没有安装过 Claude Code，也不知道怎么获取 API Key。请帮我从零开始。",
+      "expected_output": "Should guide to WSL/Git Bash first, explain Windows incompatibility, check Node.js/Python3 prerequisites, install Claude Code with npm mirror, provide API key registration links for DeepSeek and Qwen, create model-selector with 2 providers, write bash function to shell config, and explain network requirements vs proxy needs",
+      "files": [],
+      "assertions": [
+        {"name": "windows-wsl-guidance", "description": "Output explains Windows incompatibility and recommends WSL or Git Bash"},
+        {"name": "no-powershell-cmd", "description": "Output explicitly warns against using PowerShell or cmd.exe"},
+        {"name": "checks-nodejs", "description": "Output tells user to verify Node.js >= 18"},
+        {"name": "checks-python3", "description": "Output tells user to verify Python 3"},
+        {"name": "npm-install-with-mirror", "description": "Output includes npm install command with npmmirror.com registry"},
+        {"name": "deepseek-api-key-link", "description": "Output includes platform.deepseek.com registration link"},
+        {"name": "qwen-api-key-link", "description": "Output includes dashscope.aliyun.com registration link"},
+        {"name": "model-selector-created", "description": "model-selector is created with DeepSeek and Qwen entries"},
+        {"name": "network-proxy-explanation", "description": "Output explains npm/OAuth may need proxy but domestic APIs do not"},
+        {"name": "bash-function-written", "description": "Shell function is written to the appropriate config file"},
+        {"name": "json-valid", "description": "The model-selector JSON is valid"},
+        {"name": "unset-auth-token-at-top", "description": "unset ANTHROPIC_AUTH_TOKEN is placed at function top, before the if block"}
       ]
     }
   ]
