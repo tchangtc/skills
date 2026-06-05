@@ -1,6 +1,6 @@
 # Claude Code Multi-Provider Model Selector
 
-**English** | [中文](README.zh-CN.md)
+**English** | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md)
 
 Use Claude Code with DeepSeek, Qwen, GLM, or any Anthropic-compatible API provider — switch models interactively per project, no code changes required.
 
@@ -125,7 +125,14 @@ This keeps quality high on the main loop while cutting subagent costs.
 ```
 skills/
 ├── README.md                          ← English (this file)
-├── README.zh-CN.md                    ← 中文版
+├── README.zh-CN.md                    ← 简体中文版
+├── README.zh-TW.md                    ← 繁體中文版
+├── demo-skill/
+│   └── hello.md                       ← Simple greeting demo skill
+├── paper-reading/
+│   ├── SKILL.md                       ← Interactive paper survey workflow
+│   ├── xlsx_writer.py                 ← Pure-stdlib Excel generator
+│   └── references/                    ← Column specs, company lists, anti-patterns
 ├── setup-model-selector/              ← Core: model-selector setup skill
 │   ├── SKILL.md                       ←    Full step-by-step guide (AI-executable)
 │   ├── references/
@@ -133,7 +140,10 @@ skills/
 │   └── evals/
 │       └── evals.json                 ←    51 automated test assertions
 ├── skill-creator/                     ← Tool: create new skills
-└── demo-skill/                        ← Example: a simple hello skill
+│   ├── SKILL.md                       ← Create and improve skills iteratively
+│   ├── agents/                        ← Subagent definitions
+│   ├── references/                    ← Skill writing guides
+│   └── scripts/                       ← Eval and optimization scripts
 ```
 
 ## FAQ
@@ -149,6 +159,15 @@ A: No. cmd and PowerShell don't support shell functions. You need WSL (`wsl --in
 
 **Q: Installation fails / network timeout?**
 A: Check your npm mirror config. If a proxy (Clash Verge / V2Ray etc.) is running, ensure `https_proxy` is set in your shell.
+
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| [hello](demo-skill/hello.md) | Greets the user and displays system information |
+| [paper-reading](paper-reading/SKILL.md) | Interactive LLM paper survey: search, organize into 15-column Excel, fact-check every entry, produce deep analysis reports |
+| [setup-model-selector](setup-model-selector/SKILL.md) | Set up Claude Code multi-provider model-selector system (DeepSeek, Qwen, GLM, custom APIs) |
+| [skill-creator](skill-creator/SKILL.md) | Create new skills, modify and improve existing skills, run evals, benchmark performance |
 
 ## License
 
